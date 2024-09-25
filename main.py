@@ -5,7 +5,7 @@ import openai
 BASE_URL = "https://api.aimlapi.com/v1"  # Adjust base URL as needed
 
 # User input for the API key
-api_key = st.text_input("Enter your OpenAI API key:", type="password")
+api_key = st.text_input("Enter your License key:", type="password")
 
 # Initialize OpenAI only if API key is provided
 if api_key:
