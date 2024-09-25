@@ -1,74 +1,49 @@
 import streamlit as st
-import openai
+import requests
 
-# Constants
-BASE_URL = "https://api.aimlapi.com/v1"  # Adjust base URL as needed
+# Constants for the AIMLAPI
+BASE_URL = "https://api.aimlapi.com/v1"  # Ensure this is the correct endpoint for AIMLAPI
 
 # User input for the API key
-api_key = st.text_input("Enter your OpenAI API key:", type="password")
-
-# Initialize OpenAI only if API key is provided
-if api_key:
-    openai.api_key = api_key  # Set the API key directly
+api_key = st.text_input("Enter your AIMLAPI API key:", type="password")
 
 def generate_gui_code(prompt, framework):
-    # Prepare the request to OpenAI
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{
-            "role": "system",
-            "content": "You are an assistant that generates GUI code."
-        }, {
-            "role": "user",
-            "content": f"Generate a {framework} GUI application code based on the following prompt: {prompt}"
-        }],
-        temperature=0.7,
-        max_tokens=512,
-    )
-    return response.choices[0].message.content
+    headers = {
+        "Authorization": f"Bearer {api_key}"  # Use Bearer token for authentication
+    }
+    payload = {
+        "prompt": f"Generate a {framework} GUI application code based on the following prompt: {prompt}",
+        "temperature": 0.7,
+        "max_tokens": 512,
+    }
 
+    # Make the API call to AIMLAPI
+    response = requests.post(f"{BASE_URL}/generate", json=payload, headers=headers)
+
+    # Check for successful response
+    if response.status_code == 200:
+        return response.json().get("data", {}).get("text", "No code generated.")
+    else:
+        return f"Error: {response.status_code} - {response.text}"
 
 def main():
     st.title("PyGUI Generator 🐍")
 
-    # User input for the prompt
     prompt = st.text_area("Describe the GUI you want to create:")
-
-    # Dropdown for framework selection
-    frameworks = [
-        "Tkinter", "CustomTkinter", "PyQt6", "wxPython", "Kivy", "Flask",
-        "Dash", "GTK", "Pygame"
-    ]
+    frameworks = ["Tkinter", "CustomTkinter", "PyQt6", "wxPython", "Kivy"]
     selected_framework = st.selectbox("Choose a GUI framework:", frameworks)
 
-    # Button to generate code
     if st.button("Generate Code"):
-        if prompt:
-            if api_key:  # Check if API key is provided
-                with st.spinner("Generating code..."):
-                    code = generate_gui_code(prompt, selected_framework)
-                    st.success("Code generated successfully!")
+        if prompt and api_key:
+            with st.spinner("Generating code..."):
+                code = generate_gui_code(prompt, selected_framework)
+                st.success("Code generated successfully!")
 
-                    # Display the generated code in markdown format
-                    st.markdown("### Generated Code:")
-                    st.markdown("```python\n" + code + "\n```")
-
-                    # Create a download button for the generated code
-                    code_filename = "generated_gui_app.py"
-                    with open(code_filename, "w") as code_file:
-                        code_file.write(code)
-                    with open(code_filename, "rb") as code_file:
-                        st.download_button(
-                            label="Download Python Code",
-                            data=code_file,
-                            file_name=code_filename,
-                            mime="application/octet-stream",
-                        )
-            else:
-                st.error("Please enter a valid API key.")
+                # Display the generated code
+                st.markdown("### Generated Code:")
+                st.markdown("```python\n" + code + "\n```")
         else:
-            st.error("Please enter a prompt.")
-
+            st.error("Please provide both a prompt and API key.")
 
 if __name__ == "__main__":
     main()
