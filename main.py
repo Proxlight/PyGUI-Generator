@@ -1,5 +1,5 @@
 import streamlit as st
-import openai  # Correct import statement
+import openai
 
 # Constants
 BASE_URL = "https://api.aimlapi.com/v1"  # Adjust base URL as needed
@@ -13,8 +13,8 @@ if api_key:
 
 def generate_gui_code(prompt, framework):
     # Prepare the request to OpenAI
-    response = openai.ChatCompletion.create(  # Use openai directly
-        model="gpt-3.5-turbo",  # or use your desired model
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
         messages=[{
             "role": "system",
             "content": "You are an assistant that generates GUI code."
@@ -51,7 +51,7 @@ def main():
 
                     # Display the generated code in markdown format
                     st.markdown("### Generated Code:")
-                    st.markdown("```python\n" + code + "\n```")  # Display code in a markdown block
+                    st.markdown("```python\n" + code + "\n```")
 
                     # Create a download button for the generated code
                     code_filename = "generated_gui_app.py"
