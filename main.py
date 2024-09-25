@@ -1,5 +1,5 @@
 import streamlit as st
-import openai
+import openai  # Correct import statement
 
 # Constants
 BASE_URL = "https://api.aimlapi.com/v1"  # Adjust base URL as needed
@@ -8,13 +8,12 @@ BASE_URL = "https://api.aimlapi.com/v1"  # Adjust base URL as needed
 api_key = st.text_input("Enter your OpenAI API key:", type="password")
 
 # Initialize OpenAI only if API key is provided
-api = None
 if api_key:
-    api = OpenAI(api_key=api_key, base_url=BASE_URL)
+    openai.api_key = api_key  # Set the API key directly
 
 def generate_gui_code(prompt, framework):
     # Prepare the request to OpenAI
-    response = api.chat.completions.create(
+    response = openai.ChatCompletion.create(  # Use openai directly
         model="gpt-3.5-turbo",  # or use your desired model
         messages=[{
             "role": "system",
@@ -27,6 +26,7 @@ def generate_gui_code(prompt, framework):
         max_tokens=512,
     )
     return response.choices[0].message.content
+
 
 def main():
     st.title("PyGUI Generator 🐍")
@@ -43,9 +43,9 @@ def main():
 
     # Button to generate code
     if st.button("Generate Code"):
-        if prompt and api:
-            with st.spinner("Generating code..."):
-                try:
+        if prompt:
+            if api_key:  # Check if API key is provided
+                with st.spinner("Generating code..."):
                     code = generate_gui_code(prompt, selected_framework)
                     st.success("Code generated successfully!")
 
@@ -64,13 +64,11 @@ def main():
                             file_name=code_filename,
                             mime="application/octet-stream",
                         )
-                except Exception as e:
-                    st.error(f"Error generating code: {e}")
-        else:
-            if not api:
-                st.error("Please enter a valid OpenAI API key.")
             else:
-                st.error("Please enter a prompt.")
+                st.error("Please enter a valid API key.")
+        else:
+            st.error("Please enter a prompt.")
+
 
 if __name__ == "__main__":
     main()
