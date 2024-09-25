@@ -1,5 +1,5 @@
 import streamlit as st
-from openai import OpenAI
+import openai
 
 # Constants
 BASE_URL = "https://api.aimlapi.com/v1"  # Adjust base URL as needed
